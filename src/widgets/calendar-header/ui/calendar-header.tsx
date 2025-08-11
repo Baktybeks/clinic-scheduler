@@ -1,5 +1,6 @@
 "use client";
 import { Button } from "antd";
+import { useEffect, useState } from "react";
 import {
   LeftOutlined,
   RightOutlined,
@@ -14,9 +15,21 @@ interface CalendarHeaderProps {
   onPatientSelect?: (patient: SearchResult) => void;
 }
 
+function useIsClient() {
+  const [isClient, setIsClient] = useState(false);
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+
+  return isClient;
+}
+
 export function CalendarHeader({ onPatientSelect }: CalendarHeaderProps) {
   const { nextDay, prevDay, goToToday, formatCurrentDate } =
     useCalendarHeaderStore();
+
+  const isClient = useIsClient();
 
   const handlePatientSelect = (patient: SearchResult) => {
     console.log("Выбран пациент:", patient);
@@ -28,8 +41,9 @@ export function CalendarHeader({ onPatientSelect }: CalendarHeaderProps) {
   };
 
   return (
-    <div className="bg-white border-b border-gray-200 p-4">
-      <div className="flex items-center justify-between mb-4">
+    <div className="border-b border-gray-200 bg-white p-4">
+      <div className="mb-4 flex items-center justify-between">
+        {/* Навигация по датам */}
         <div className="flex items-center space-x-4">
           <Button icon={<LeftOutlined />} onClick={prevDay} size="large" />
           <Button icon={<RightOutlined />} onClick={nextDay} size="large" />
@@ -42,18 +56,22 @@ export function CalendarHeader({ onPatientSelect }: CalendarHeaderProps) {
             Сегодня
           </Button>
           <div className="text-lg font-semibold text-gray-800">
-            {formatCurrentDate()}
+            {/* Безопасное отображение даты */}
+            {isClient ? formatCurrentDate() : "Загрузка..."}
           </div>
         </div>
 
+        {/* Поиск */}
         <div className="flex items-center space-x-4">
           <div className="relative hidden md:block">
-            <QuickSearch
-              onSelect={handlePatientSelect}
-              onCreateNew={handleCreateNewPatient}
-              style={{ width: 300 }}
-              placeholder="Поиск пациента..."
-            />
+            {isClient && (
+              <QuickSearch
+                onSelect={handlePatientSelect}
+                onCreateNew={handleCreateNewPatient}
+                style={{ width: 300 }}
+                placeholder="Поиск пациента..."
+              />
+            )}
           </div>
           <Button icon={<SearchOutlined />} className="md:hidden" />
         </div>

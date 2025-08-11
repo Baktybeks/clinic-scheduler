@@ -4,3 +4,4 @@ export { Sidebar } from "./sidebar";
 export { StatisticsPanel } from "./statistics-panel";
 export { MobileCalendar } from "./mobile-calendar";
 export { PatientsPanel } from "./patients-panel";
+export { PatientStats } from "./patient-stats";

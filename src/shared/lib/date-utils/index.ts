@@ -47,7 +47,7 @@ export const generateTimeSlots = (): string[] => {
 export const isTimeInWorkingHours = (time: string): boolean => {
   const minutes = parseTime(time);
   const workStart = 9 * 60;
-  const workEnd = 20 * 60;
+  const workEnd = 19 * 60;
   return minutes >= workStart && minutes <= workEnd;
 };
 
@@ -63,4 +63,26 @@ export const calculateAppointmentDuration = (
   const start = dayjs(`2000-01-01 ${timeStart}`);
   const end = dayjs(`2000-01-01 ${timeEnd}`);
   return end.diff(start, "minute");
+};
+
+export const normalizeTimeToSlot = (time: string): string => {
+  const minutes = parseTime(time);
+  const hour = Math.floor(minutes / 60);
+  const minute = minutes % 60;
+
+  const normalizedMinute = minute < 15 ? 0 : minute < 45 ? 30 : 60;
+
+  if (normalizedMinute === 60) {
+    return `${(hour + 1).toString().padStart(2, "0")}:00`;
+  }
+
+  return `${hour.toString().padStart(2, "0")}:${normalizedMinute
+    .toString()
+    .padStart(2, "0")}`;
+};
+
+export const getSlotIndex = (time: string): number => {
+  const slots = generateTimeSlots();
+  const normalizedTime = normalizeTimeToSlot(time);
+  return slots.indexOf(normalizedTime);
 };

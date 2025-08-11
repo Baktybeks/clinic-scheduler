@@ -1,18 +1,16 @@
 import { createClient } from "@supabase/supabase-js";
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
 
-if (!supabaseUrl || !supabaseAnonKey) {
-  console.error("Missing Supabase environment variables");
-}
+export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+  auth: {
+    persistSession: true,
+    autoRefreshToken: true,
+  },
+});
 
-export const supabase = createClient(
-  supabaseUrl || "http://localhost:54321",
-  supabaseAnonKey || "mock-key",
-  {
-    auth: {
-      persistSession: false,
-    },
-  }
-);
+export const signInAnonymously = async () => {
+  const { error } = await supabase.auth.signInAnonymously();
+  if (error) console.error("Auth error:", error);
+};

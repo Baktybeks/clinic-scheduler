@@ -1,41 +1,35 @@
 "use client";
 import { Layout, Menu } from "antd";
-import {
-  DashboardOutlined,
-  CalendarOutlined,
-  UserOutlined,
-  SettingOutlined,
-} from "@ant-design/icons";
+import { useRouter, usePathname } from "next/navigation";
+import { menuItems, getRouteByKey } from "../model/config";
 import type { MenuProps } from "antd";
 
 const { Sider } = Layout;
 
-type MenuItem = Required<MenuProps>["items"][number];
-
-const menuItems: MenuItem[] = [
-  {
-    key: "dashboard",
-    icon: <DashboardOutlined />,
-    label: "Dashboard",
-  },
-  {
-    key: "calendar",
-    icon: <CalendarOutlined />,
-    label: "Календарь",
-  },
-  {
-    key: "patients",
-    icon: <UserOutlined />,
-    label: "Пациенты",
-  },
-  {
-    key: "settings",
-    icon: <SettingOutlined />,
-    label: "Настройки",
-  },
-];
-
 export function Sidebar() {
+  const router = useRouter();
+  const pathname = usePathname();
+
+  const getSelectedKey = (): string[] => {
+    switch (pathname) {
+      case "/dashboard":
+        return ["dashboard"];
+      case "/calendar":
+        return ["calendar"];
+      case "/patients":
+        return ["patients"];
+      case "/settings":
+        return ["settings"];
+      default:
+        return ["calendar"];
+    }
+  };
+
+  const handleMenuClick: MenuProps["onClick"] = ({ key }) => {
+    const route = getRouteByKey(key);
+    router.push(route);
+  };
+
   return (
     <Sider
       width={240}
@@ -49,9 +43,10 @@ export function Sidebar() {
       </div>
       <Menu
         mode="inline"
-        defaultSelectedKeys={["calendar"]}
+        selectedKeys={getSelectedKey()}
         items={menuItems}
         className="border-r-0 bg-transparent"
+        onClick={handleMenuClick}
       />
     </Sider>
   );

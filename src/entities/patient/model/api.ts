@@ -160,3 +160,15 @@ export const {
   useUpdatePatientMutation,
   useDeletePatientMutation,
 } = patientApi;
+
+export {
+  useGetPatientsWithAppointmentsQuery,
+  useGetPatientAppointmentStatsQuery,
+  useGetPatientAppointmentHistoryQuery,
+} from "./appointments-api";
+
+export type {
+  PatientWithAppointments,
+  PatientAppointmentStats,
+  PatientAppointmentHistory,
+} from "./appointments-api";

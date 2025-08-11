@@ -1,3 +1,4 @@
+import { ROUTES } from "@/shared";
 import {
   DashboardOutlined,
   CalendarOutlined,
@@ -13,24 +14,35 @@ export const menuItems: MenuItem[] = [
     key: "dashboard",
     icon: <DashboardOutlined />,
     label: "Dashboard",
-    // onClick: () => navigate(ROUTES.HOME)
   },
   {
     key: "calendar",
     icon: <CalendarOutlined />,
     label: "Календарь",
-    // onClick: () => navigate(ROUTES.CALENDAR)
   },
   {
     key: "patients",
     icon: <UserOutlined />,
     label: "Пациенты",
-    // onClick: () => navigate(ROUTES.PATIENTS)
   },
   {
     key: "settings",
     icon: <SettingOutlined />,
     label: "Настройки",
-    // onClick: () => navigate(ROUTES.SETTINGS)
   },
 ];
+
+export const getRouteByKey = (key: string): string => {
+  switch (key) {
+    case "dashboard":
+      return ROUTES.DASHBOARD;
+    case "calendar":
+      return ROUTES.CALENDAR;
+    case "patients":
+      return ROUTES.PATIENTS;
+    case "settings":
+      return ROUTES.SETTINGS;
+    default:
+      return ROUTES.HOME;
+  }
+};

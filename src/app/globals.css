@@ -37,29 +37,42 @@ body {
   background: var(--color-sidebar) !important;
 }
 
+/* Календарная сетка */
 .calendar-grid {
   display: grid;
   grid-template-columns: 80px repeat(auto-fit, minmax(300px, 1fr));
   gap: 1px;
   background-color: #e2e8f0;
+  position: relative;
 }
 
+/* Временные слоты */
 .time-slot {
-  height: 60px;
+  height: 60px; /* Точно 60px для каждого слота */
   background: white;
   border-right: 1px solid #e2e8f0;
+  border-bottom: 1px solid #e2e8f0;
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 12px;
   color: #64748b;
-}
-
-.doctor-column {
-  background: white;
+  font-weight: 500;
   position: relative;
 }
 
+.time-slot:first-child {
+  border-top: 1px solid #e2e8f0;
+}
+
+/* Колонки врачей */
+.doctor-column {
+  background: white;
+  position: relative;
+  min-height: 100%;
+}
+
+/* Блоки записей */
 .appointment-block {
   position: absolute;
   left: 4px;
@@ -72,13 +85,20 @@ body {
   cursor: pointer;
   transition: all 0.2s ease;
   box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  border: 1px solid rgba(255,255,255,0.2);
+  min-height: 30px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
 
 .appointment-block:hover {
   transform: translateY(-1px);
   box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+  z-index: 20;
 }
 
+/* Статусы записей */
 .appointment-completed {
   background: linear-gradient(135deg, var(--color-appointment-completed), #10b981);
 }
@@ -87,9 +107,25 @@ body {
   background: linear-gradient(135deg, var(--color-appointment-cancelled), #ef4444);
 }
 
+.appointment-arrived {
+  background: linear-gradient(135deg, #f59e0b, #d97706);
+}
+
+/* Заголовки врачей */
+.doctor-header {
+  background: white;
+  border-bottom: 2px solid #e2e8f0;
+  padding: 12px;
+  text-align: center;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+/* Адаптивность */
 @media (max-width: 768px) {
   .calendar-grid {
-    grid-template-columns: 60px repeat(auto-fit, minmax(200px, 1fr));
+    grid-template-columns: 60px repeat(auto-fit, minmax(250px, 1fr));
   }
   
   .time-slot {
@@ -100,5 +136,30 @@ body {
   .appointment-block {
     font-size: 10px;
     padding: 6px;
+    left: 2px;
+    right: 2px;
   }
+}
+
+/* Дополнительные стили для временных меток */
+.time-slot-label {
+  font-weight: 600;
+  color: #374151;
+}
+
+/* Стили для перетаскивания */
+.appointment-block.dragging {
+  opacity: 0.7;
+  transform: scale(1.05);
+  z-index: 30;
+}
+
+/* Стили для выделения временных слотов */
+.time-slot.highlight {
+  background-color: #f3f4f6;
+}
+
+.time-slot.drop-zone {
+  background-color: #dbeafe;
+  border: 2px dashed #3b82f6;
 }
