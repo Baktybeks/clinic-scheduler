@@ -364,7 +364,6 @@ export function PatientsPage() {
             </Col>
           </Row>
 
-          {/* Фильтры и поиск */}
           <Card className="mb-6">
             <Row gutter={16} align="middle">
               <Col xs={24} sm={12}>
@@ -392,7 +391,6 @@ export function PatientsPage() {
             </Row>
           </Card>
 
-          {/* Таблица пациентов */}
           <Card>
             <Tabs activeKey={activeTab} onChange={setActiveTab}>
               <TabPane

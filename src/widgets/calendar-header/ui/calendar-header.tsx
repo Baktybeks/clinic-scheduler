@@ -43,7 +43,6 @@ export function CalendarHeader({ onPatientSelect }: CalendarHeaderProps) {
   return (
     <div className="border-b border-gray-200 bg-white p-4">
       <div className="mb-4 flex items-center justify-between">
-        {/* Навигация по датам */}
         <div className="flex items-center space-x-4">
           <Button icon={<LeftOutlined />} onClick={prevDay} size="large" />
           <Button icon={<RightOutlined />} onClick={nextDay} size="large" />
@@ -56,12 +55,10 @@ export function CalendarHeader({ onPatientSelect }: CalendarHeaderProps) {
             Сегодня
           </Button>
           <div className="text-lg font-semibold text-gray-800">
-            {/* Безопасное отображение даты */}
             {isClient ? formatCurrentDate() : "Загрузка..."}
           </div>
         </div>
 
-        {/* Поиск */}
         <div className="flex items-center space-x-4">
           <div className="relative hidden md:block">
             {isClient && (

@@ -8,10 +8,12 @@ import {
   Button,
   message,
   DatePicker,
+  Card,
 } from "antd";
 import { useCreateAppointmentMutation } from "@/entities/appointment";
 import { useGetDoctorsQuery } from "@/entities/doctor";
-import type { CreateAppointmentRequest } from "@/shared/types";
+import { useCalendarHeaderStore } from "@/widgets/calendar-header";
+import type { CreateAppointmentRequest, Doctor } from "@/shared/types";
 import dayjs from "dayjs";
 
 const { Option } = Select;
@@ -25,6 +27,8 @@ interface EnhancedAppointmentModalProps {
     phone?: string;
     date?: string;
     timeStart?: string;
+    doctorId?: number;
+    doctorName?: string;
   };
 }
 
@@ -34,8 +38,15 @@ export function EnhancedAppointmentModal({
   initialValues,
 }: EnhancedAppointmentModalProps) {
   const [form] = Form.useForm();
-  const { data: doctors = [] } = useGetDoctorsQuery(undefined);
+  const { currentDate } = useCalendarHeaderStore();
+  const { data: doctors = [] } = useGetDoctorsQuery(
+    currentDate.format("YYYY-MM-DD")
+  );
   const [createAppointment, { isLoading }] = useCreateAppointmentMutation();
+
+  const preselectedDoctor = initialValues?.doctorId
+    ? doctors.find((d) => d.id === initialValues.doctorId)
+    : null;
 
   const handleSubmit = async (values: any) => {
     try {
@@ -43,7 +54,7 @@ export function EnhancedAppointmentModal({
         doctorId: values.doctorId,
         date: values.date
           ? values.date.format("YYYY-MM-DD")
-          : dayjs().format("YYYY-MM-DD"),
+          : currentDate.format("YYYY-MM-DD"),
         timeStart: values.timeRange[0].format("HH:mm"),
         timeEnd: values.timeRange[1].format("HH:mm"),
         patient: values.patient,
@@ -53,7 +64,14 @@ export function EnhancedAppointmentModal({
       };
 
       await createAppointment(appointmentData).unwrap();
-      message.success("Запись успешно создана!");
+
+      const selectedDoctor = doctors.find((d) => d.id === values.doctorId);
+      message.success(
+        `Запись создана! Пациент ${values.patient} записан к врачу ${
+          selectedDoctor?.name
+        } на ${values.timeRange[0].format("HH:mm")}`
+      );
+
       form.resetFields();
       onClose();
     } catch (error: any) {
@@ -69,30 +87,85 @@ export function EnhancedAppointmentModal({
     onClose();
   };
 
+  const getInitialFormValues = () => {
+    const baseValues = {
+      patient: initialValues?.patient || "",
+      phone: initialValues?.phone || "",
+      date: initialValues?.date ? dayjs(initialValues.date) : currentDate,
+      timeRange: initialValues?.timeStart
+        ? [
+            dayjs(initialValues.timeStart, "HH:mm"),
+            dayjs(initialValues.timeStart, "HH:mm").add(1, "hour"),
+          ]
+        : [dayjs("09:00", "HH:mm"), dayjs("10:00", "HH:mm")],
+    };
+
+    if (initialValues?.doctorId) {
+      return {
+        ...baseValues,
+        doctorId: initialValues.doctorId,
+      };
+    }
+
+    return baseValues;
+  };
+
+  const filterDoctorOption = (input: string, option: any) => {
+    const doctorName =
+      option?.props?.children?.props?.children?.[1]?.props?.children?.[0] || "";
+    const doctorSpecialty =
+      option?.props?.children?.props?.children?.[1]?.props?.children?.[1]?.props
+        ?.children || "";
+
+    return (
+      doctorName.toLowerCase().includes(input.toLowerCase()) ||
+      doctorSpecialty.toLowerCase().includes(input.toLowerCase())
+    );
+  };
+
   return (
     <Modal
-      title="Записать пациента на прием"
+      title={
+        <div>
+          <span>Новая запись</span>
+          {preselectedDoctor && (
+            <div className="text-sm text-gray-500 mt-1">
+              Время: {initialValues?.timeStart} у врача {preselectedDoctor.name}
+            </div>
+          )}
+        </div>
+      }
       open={visible}
       onCancel={handleCancel}
       footer={null}
       width={700}
       destroyOnClose
     >
+      {initialValues?.timeStart && preselectedDoctor && (
+        <Card size="small" className="mb-4 bg-blue-50 border-blue-200">
+          <div className="flex items-center justify-between">
+            <div>
+              <div className="font-semibold text-blue-800">
+                📅 Выбранное время: {initialValues.timeStart}
+              </div>
+              <div className="text-sm text-blue-600">
+                👨‍⚕️ Врач: {preselectedDoctor.name} -{" "}
+                {preselectedDoctor.specialty}
+              </div>
+              <div className="text-xs text-blue-500">
+                📍 Дата: {currentDate.format("DD.MM.YYYY")}
+              </div>
+            </div>
+            <div className="text-2xl">{preselectedDoctor.avatar}</div>
+          </div>
+        </Card>
+      )}
+
       <Form
         form={form}
         layout="vertical"
         onFinish={handleSubmit}
-        initialValues={{
-          patient: initialValues?.patient || "",
-          phone: initialValues?.phone || "",
-          date: initialValues?.date ? dayjs(initialValues.date) : dayjs(),
-          timeRange: initialValues?.timeStart
-            ? [
-                dayjs(initialValues.timeStart, "HH:mm"),
-                dayjs(initialValues.timeStart, "HH:mm").add(1, "hour"),
-              ]
-            : [dayjs("09:00", "HH:mm"), dayjs("10:00", "HH:mm")],
-        }}
+        initialValues={getInitialFormValues()}
       >
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <Form.Item
@@ -100,7 +173,12 @@ export function EnhancedAppointmentModal({
             label="Врач"
             rules={[{ required: true, message: "Выберите врача" }]}
           >
-            <Select placeholder="Выберите врача" size="large">
+            <Select
+              placeholder="Выберите врача"
+              size="large"
+              showSearch
+              filterOption={filterDoctorOption}
+            >
               {doctors.map((doctor) => (
                 <Option key={doctor.id} value={doctor.id}>
                   <div className="flex items-center">
@@ -214,7 +292,9 @@ export function EnhancedAppointmentModal({
               loading={isLoading}
               size="large"
             >
-              Создать запись
+              {preselectedDoctor
+                ? `Записать к ${preselectedDoctor.name}`
+                : "Создать запись"}
             </Button>
           </div>
         </Form.Item>
