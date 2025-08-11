@@ -1,0 +1,1 @@
+export { PatientsPanel } from "./ui";
