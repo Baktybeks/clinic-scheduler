@@ -1,13 +1,16 @@
 "use client";
 import { DoctorHeader } from "@/entities/doctor";
 import { AppointmentBlock } from "../appointment-block/appointment-block";
-import { useCalendarGridStore } from "../../model/store";
+import { useCalendarGridStore, timeUtils } from "../../model/store";
 import type { Doctor } from "@/shared/types";
-import { isTimeInWorkingHours } from "@/shared";
 
 interface DoctorColumnsProps {
   doctors: Doctor[];
-  onTimeSlotClick?: (timeSlot: string) => void;
+  onTimeSlotClick?: (
+    timeSlot: string,
+    doctorId: number,
+    doctorName: string
+  ) => void;
 }
 
 export function DoctorColumns({
@@ -24,14 +27,14 @@ export function DoctorColumns({
             <div
               key={time}
               className="time-slot bg-transparent border-b border-gray-200 hover:bg-blue-50 cursor-pointer transition-colors"
-              onClick={() => onTimeSlotClick?.(time)}
-              title={`Создать запись на ${time}`}
+              onClick={() => onTimeSlotClick?.(time, doctor.id, doctor.name)}
+              title={`Создать запись на ${time} к врачу ${doctor.name}`}
             />
           ))}
 
           {doctor.appointments
             .filter((appointment) =>
-              isTimeInWorkingHours(appointment.timeStart)
+              timeUtils.isTimeInWorkingHours(appointment.timeStart)
             )
             .map((appointment) => {
               const position = calculateAppointmentPosition(
